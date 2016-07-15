@@ -32,8 +32,6 @@ export class SequelizeOptions {
    }
 }
 
-//export const SequelizeKey = Symbol.for("Sequelizer"); 
-
 @decorators.options(SequelizeOptions)
 @decorators.inject(SequelizeOptions, Willburg)
 @decorators.service()

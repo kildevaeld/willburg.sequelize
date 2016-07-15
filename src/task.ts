@@ -39,11 +39,7 @@ export class ModelTask implements ITask {
                     let name = mod.name||Path.basename(path, Path.extname(path));
                     
                     this.sequelize['_formatters'][name] = formatter;
-                    /*let q = formatter.query()
-
-                    return this.sequelize.model('concert').findAll(q).then(m => {
-                        console.log(m)
-                    })*/
+                    
                     return Promise.resolve();
                 });
             }

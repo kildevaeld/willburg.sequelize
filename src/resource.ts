@@ -27,7 +27,7 @@ export interface ResourceRouteFactoryOptions {
 function resourceRouteFactory(factory: ResourceFactory, db: Sequelize, options: ResourceRouteFactoryOptions) {
 
     return async function (ctx: Context, next?: Function): Promise<any> {
-        //debug('calling %s on %s', action, controllerName);
+
         var controller;
         if (!controller) {
             let Controller = factory.desc.controller || Resource;
@@ -80,10 +80,13 @@ function resourceRouteFactory(factory: ResourceFactory, db: Sequelize, options: 
     };
 }
 
+export enum Hook {
+    ReadAll, Read, Create, Update, Delete
+};
 
 export class ResourceFactory {
     desc: ResourceDescription = {};
-
+    hooks: Map<Hook, MiddlewareFunc[]> = new Map();
     path(path: string): ResourceFactory {
         this.desc.path = path;
         return this;
@@ -94,9 +97,16 @@ export class ResourceFactory {
         return this;
     }
 
-    use(...fn: MiddlewareFunc[]) {
+    use(hook:Hook|MiddlewareFunc, ...fn: MiddlewareFunc[]) {
         if (!this.desc.middleware) this.desc.middleware = [];
-        this.desc.middleware.push(...fn);
+        if (typeof hook === 'function') {
+            let fns = [(<any>hook)].concat(fn);
+            this.desc.middleware.push(...fns);
+        } else if (fn.length > 0) {
+            if (!this.hooks.has(hook)) this.hooks.set(hook, []);
+            this.hooks.get(hook).push(...fn);
+        }
+
         return this;
     }
 
@@ -110,7 +120,7 @@ export class ResourceFactory {
         let model = this.desc.model;
 
         let o = { model: model, formatter: this.desc.formatter, action: 'index', middlewares: [] };
-
+        
         router.get(path, resourceRouteFactory(this, db, Object.assign({}, o)));
         router.get(path + "/:id", resourceRouteFactory(this, db, Object.assign({}, o, { action: 'show' })))
 
