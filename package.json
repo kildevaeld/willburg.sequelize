@@ -1,0 +1,27 @@
+{
+  "name": "willburg.sequelize",
+  "version": "0.0.1",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^2.13.6",
+    "merge2": "^1.0.2",
+    "recursive-readdir": "^2.0.0",
+    "requiredir": "^1.0.7"
+  },
+  "dependencies": {
+    "debug": "^2.2.0",
+    "sequelize": "^3.23.4"
+  },
+  "peerDependencies": {
+    "willburg": "git+https://github.com/kildevaeld/willburg.git",
+    "stick.di": "git+https://github.com/kildevaeld/dijs.git"
+  },
+  "typings": "lib/index"
+}

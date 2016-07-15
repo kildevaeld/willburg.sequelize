@@ -1,0 +1,13 @@
+{
+  "name": "willburg.sequelize",
+  "dependencies": {
+    "debug": "registry:npm/debug#2.0.0+20160511151334",
+    "sequelize": "registry:npm/sequelize#3.0.0+20160706040828"
+  },
+  "globalDependencies": {
+    "formidable": "registry:dt/formidable#1.0.16+20160316155526",
+    "joi": "registry:dt/joi#9.0.0+20160626220651",
+    "koa": "registry:dt/koa#2.0.0+20160619030120",
+    "node": "registry:env/node#6.0.0+20160622202520"
+  }
+}
