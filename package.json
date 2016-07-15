@@ -1,6 +1,6 @@
 {
   "name": "willburg.sequelize",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "requiredir": "^1.0.7"
   },
   "dependencies": {
+    "continuation-local-storage": "^3.1.7",
     "debug": "^2.2.0",
     "sequelize": "^3.23.4"
   },
