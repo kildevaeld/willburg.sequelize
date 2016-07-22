@@ -21,11 +21,19 @@ export interface ResourceRouteFactoryOptions {
     formatter?: string | ((ctx: Context) => QueryFormatter);
     middlewares: MiddlewareFunc[];
 }
+export declare enum Hook {
+    ReadAll = 0,
+    Read = 1,
+    Create = 2,
+    Update = 3,
+    Delete = 4,
+}
 export declare class ResourceFactory {
     desc: ResourceDescription;
+    hooks: Map<Hook, MiddlewareFunc[]>;
     path(path: string): ResourceFactory;
     model(model: string): ResourceFactory;
-    use(...fn: MiddlewareFunc[]): this;
+    use(hook: Hook | MiddlewareFunc, ...fn: MiddlewareFunc[]): this;
     controller(controller: any): this;
     create(router: IRouter, db: Sequelize): void;
     get(path: string, action: string, ...fn: MiddlewareFunc[]): this;
