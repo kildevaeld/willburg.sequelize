@@ -24,11 +24,15 @@ export class ModelTask implements ITask {
         let modelPath = this.sequelize.options.models
 
         try {
-            await processDirectory(modelPath, (mod: any, _, path: string) => {
+            try {
+                await processDirectory(modelPath, (mod: any, _, path: string) => {
                 debug("loading models from path: %s", path)
                 mod.call(undefined, this.sequelize.seq, Sequelize.DataTypes);
             });
 
+            } catch (e) {
+                debug('could not load models')
+            }
             let formatters = this.sequelize.options.formatters;
             if (formatters) {
                 await requireDir(formatters, (mod: any, path: string) => {
