@@ -186,6 +186,7 @@ export class Resource<T extends IModel> extends Controller {
     }
 
     async index(ctx: Context) {
+        
         ctx.type = "json";
 
         let query = ctx.query
@@ -206,6 +207,8 @@ export class Resource<T extends IModel> extends Controller {
         } else {
             count = await this.model.count(q);
         }
+
+        ctx.set("X-Total", count);
 
         if (count == 0) {
             ctx.body = [];

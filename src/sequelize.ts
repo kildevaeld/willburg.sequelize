@@ -47,7 +47,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
         SequelizeKlass.cls = cls.createNamespace("livejazz-admin");
         
         if (o.debug === true) {
-            (<any>o).logging = Debug('sequelize:sql')
+            (<any>o).logging = Debug('willburg:sequelize:sql')
         } else {
             (<any>o).logging = null;
         }
