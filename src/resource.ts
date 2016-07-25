@@ -5,6 +5,7 @@ import {IModelList, IModel, Query} from './interfaces'
 import {DIContainer} from 'stick.di';
 import {QueryFormatter} from './query-formatter';
 import * as Path from 'path';
+import * as _ from 'underscore';
 
 const compose = require('koa-compose');
 
@@ -151,6 +152,31 @@ export class ResourceFactory {
     }
 }
 
+const aFieldReg = /^\$[a-zA-Z.]+\$$/
+
+function hasAssociatedQuery2 (where: any): boolean {
+    if (Array.isArray(where)) {
+        for (let a of where) {
+            if (hasAssociatedQuery2(a)) return true;
+        }
+    } else {
+        if (typeof where === 'string') {
+            return aFieldReg.test(where);
+        }
+        for (let key in where) {
+            if (aFieldReg.test(key)) return true;
+            if (hasAssociatedQuery2(where[key])) return true;
+        }
+    }
+    return false;
+}   
+
+export function hasAssociatedQuery (q:any): boolean {
+    if (q.limit == null) return false   
+    if (q == null || q.where == null) return false;
+    return hasAssociatedQuery2(q.where)
+}
+
 export class Resource<T extends IModel> extends Controller {
     model: IModelList<T>
     formatter: QueryFormatter
@@ -196,6 +222,7 @@ export class Resource<T extends IModel> extends Controller {
             q = this.formatter.query(query);
         }
 
+
         let count = 0;
         if (q.include) {
             let c = await this.model.findAll({
@@ -225,7 +252,31 @@ export class Resource<T extends IModel> extends Controller {
         q.offset = offset;
         q.limit = ret.limit;
 
-        let models = await this.model.findAll(q);
+        let models
+        // https://github.com/sequelize/sequelize/issues/6274
+        if (hasAssociatedQuery(q)) {
+            delete q.limit
+            let attr = q.attributes;
+            let idAttribute = this.formatter && this.formatter.idAttribute ? this.formatter.idAttribute : 'id'
+            q.attributes = [idAttribute]
+            
+            let ids = await this.model.findAll(q)
+            ids = _.pluck(ids, idAttribute)
+            
+            models = await this.model.findAll({
+                offset: offset,
+                limit: ret.limit,
+                include: q.include,
+                order: q.order,
+                where: {
+                    [idAttribute]: { $in: ids }
+                }
+            }); 
+        } else {
+            models = await this.model.findAll(q);    
+        }
+
+        
 
         if (this.formatter) {
             ctx.body = models.map(m => this.formatter.format(m))

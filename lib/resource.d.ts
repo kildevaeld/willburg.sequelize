@@ -39,6 +39,7 @@ export declare class ResourceFactory {
     get(path: string, action: string, ...fn: MiddlewareFunc[]): this;
     format(name: string): this;
 }
+export declare function hasAssociatedQuery(q: any): boolean;
 export declare class Resource<T extends IModel> extends Controller {
     protected db: Sequelize;
     model: IModelList<T>;
