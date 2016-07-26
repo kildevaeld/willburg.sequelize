@@ -152,7 +152,7 @@ export class ResourceFactory {
     }
 }
 
-const aFieldReg = /^\$[a-zA-Z.]+\$$/
+const aFieldReg = /^\$[a-zA-Z.]+\$$/;
 
 function hasAssociatedQuery2 (where: any): boolean {
     if (Array.isArray(where)) {
@@ -194,9 +194,10 @@ export class Resource<T extends IModel> extends Controller {
             return {page: page, pages: pages, limit: limit};
         }
 
-        let path = ctx.originalUrl;
-        let i = path.indexOf('?');
+        let path = ctx.originalUrl,
+            i = path.indexOf('?');
         if (~i) path = path.substr(0, i);
+        
         let url = ctx.protocol + '://' + ctx.request.get('Host') + path + '?page=';
 
         let links: any = { current: page, first: 1, last: pages };
@@ -206,6 +207,7 @@ export class Resource<T extends IModel> extends Controller {
         for (let key in links) {
             links[key] = url + links[key];
         }
+
         ctx.links(links);
 
         return {page: page, pages: pages, limit: limit};
@@ -252,11 +254,14 @@ export class Resource<T extends IModel> extends Controller {
         q.offset = offset;
         q.limit = ret.limit;
 
-        let models
+        let models: IModel[]
+        
         // https://github.com/sequelize/sequelize/issues/6274
         if (hasAssociatedQuery(q)) {
+            
             delete q.limit
             let attr = q.attributes;
+            
             let idAttribute = this.formatter && this.formatter.idAttribute ? this.formatter.idAttribute : 'id'
             q.attributes = [idAttribute]
             
@@ -268,10 +273,12 @@ export class Resource<T extends IModel> extends Controller {
                 limit: ret.limit,
                 include: q.include,
                 order: q.order,
+                attributes: attr,
                 where: {
                     [idAttribute]: { $in: ids }
                 }
             }); 
+
         } else {
             models = await this.model.findAll(q);    
         }
@@ -281,14 +288,14 @@ export class Resource<T extends IModel> extends Controller {
         if (this.formatter) {
             ctx.body = models.map(m => this.formatter.format(m))
         } else {
-            ctx.body = models
+            ctx.body = models;
         }
 
     }
 
     async show(ctx: Context) {
         let query = ctx.query
-        let q: Query;
+        let q: Query = {};
         if (this.formatter) {
             q = this.formatter.query(query);
             delete q.where
@@ -296,13 +303,15 @@ export class Resource<T extends IModel> extends Controller {
 
         let model;
         if (this.formatter && this.formatter.idAttribute != "id") {
-            q.where = [`${this.formatter.idAttribute} = ?`, ctx.params['id']];
-            model = await this.model.findAll(q);
-            if (model && model.length == 1) {
+            q.where = {[this.formatter.idAttribute]: ctx.params['id']};
+           
+
+            model = await this.model.findOne(q);
+            /*if (model && model.length == 1) {
                 model = model[0];
             } else {
                 model = null;
-            }
+            }*/
         } else {
             model = await this.model.findById(ctx.params['id'], q)
         }

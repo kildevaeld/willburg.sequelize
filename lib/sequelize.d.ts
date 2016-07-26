@@ -12,7 +12,6 @@ export declare class SequelizeOptions {
     username: string;
     password: string;
     models: string;
-    creators: string;
     routes: string;
     formatters: string;
     debug: boolean;

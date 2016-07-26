@@ -21,9 +21,11 @@ export class SequelizeOptions {
     database: string;
     username: string;
     password: string;
+    // Path to models
     models: string;
-    creators: string;
+    //creators: string;
     routes: string;
+    // Path to formatters
     formatters: string;
     debug: boolean;
    
@@ -44,7 +46,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
         
         let o = options;
         
-        SequelizeKlass.cls = cls.createNamespace("livejazz-admin");
+        SequelizeKlass.cls = cls.createNamespace("willburg:sequelize");
         
         if (o.debug === true) {
             (<any>o).logging = Debug('willburg:sequelize:sql')
