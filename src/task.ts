@@ -33,6 +33,7 @@ export class ModelTask implements ITask {
             } catch (e) {
                 debug('could not load models')
             }
+            
             let formatters = this.sequelize.options.formatters;
             if (formatters) {
                 await requireDir(formatters, (mod: any, path: string) => {

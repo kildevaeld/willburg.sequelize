@@ -58,7 +58,7 @@ export class QueryFormatter {
                     if (Array.isArray(json[m.key])) {
                         json[m.key] = model[m.key].map(m => this._formatDescription(m, desc.include[i]))
                     } else {
-                        
+                        if (desc.include[i] == undefined) continue;
                         json[m.key] = this._formatDescription(model[m.key], desc.include[i])
                     }
                     
