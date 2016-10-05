@@ -96,7 +96,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
         return this.seq.transaction(fn);
     }
 
-    define<T, V>(name: string | ((Sequelize, DataTypes) => SQ.Model<T, V>), attr: { [key: string]: string }): SQ.Model<T, V> {
+    define<T, V>(name: string | ((Sequelize, DataTypes) => SQ.Model<T, V>), attr?: { [key: string]: string }): SQ.Model<T, V> {
         if (typeof name === 'function') {
             return (<any>name)(this.seq, DataTypes);
         }

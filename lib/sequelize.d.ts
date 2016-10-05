@@ -38,7 +38,7 @@ export declare class Sequelize implements Configurable<SequelizeOptions> {
     factories: ResourceFactory<IModel>[];
     constructor(options: SequelizeOptions, app: Willburg);
     transaction<T>(fn: (t: Transaction) => Promise<T>): Promise<T>;
-    define<T, V>(name: string | ((Sequelize, DataTypes) => SQ.Model<T, V>), attr: {
+    define<T, V>(name: string | ((Sequelize, DataTypes) => SQ.Model<T, V>), attr?: {
         [key: string]: string;
     }): SQ.Model<T, V>;
     model<T, V>(name: string): SQ.Model<T, V>;

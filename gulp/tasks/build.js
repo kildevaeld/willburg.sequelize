@@ -2,9 +2,16 @@
 
 const gulp = require('gulp'),
     tsc = require('gulp-typescript'),
-    merge = require('merge2');
+    merge = require('merge2'),
+    bump = require('gulp-bump');
     
 const project = tsc.createProject(process.cwd() + '/tsconfig.json');
+
+gulp.task('bump', () => {
+  return gulp.src('./package.json')
+  .pipe(bump())
+  .pipe(gulp.dest('./'));
+})
 
 gulp.task('typescript', () => {
     let result = project.src()
