@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "noImplicitAny": false,
+        "sourceMap": false,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "rootDir": "src",
+        "outDir": "lib"
+    },
+    "files": [
+        "../typings/index.d.ts",
+        "src/index.ts",
+        "src/controllers/home.ts",
+        "src/models/blog.ts",
+        "src/creators/blog.ts",
+        "src/initializers/api.ts"
+    ]
+}

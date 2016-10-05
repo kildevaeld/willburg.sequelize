@@ -4,16 +4,19 @@ import {Sequelize} from './sequelize';
 import {IModelList, IModel, Query} from './interfaces'
 import {DIContainer} from 'stick.di';
 import {QueryFormatter} from './query-formatter';
+import {ICreator, ICreatorConstructor} from './creator'
+
 import * as Path from 'path';
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 
 const compose = require('koa-compose');
 
-export interface ResourceDescription {
+export interface ResourceDescription<T extends IModel> {
     model?: string;
     path?: string;
     middleware?: MiddlewareFunc[];
     controller?: any;
+    creator?: ICreatorConstructor<T>
     formatter?: string | ((ctx: Context) => QueryFormatter);
     routes?: { path: string; method: string; middlewares: MiddlewareFunc[], action: string; }[]
 }
@@ -25,7 +28,7 @@ export interface ResourceRouteFactoryOptions {
     middlewares: MiddlewareFunc[]
 }
 
-function resourceRouteFactory(factory: ResourceFactory, db: Sequelize, options: ResourceRouteFactoryOptions) {
+function resourceRouteFactory<T extends IModel>(factory: ResourceFactory<T>, db: Sequelize, options: ResourceRouteFactoryOptions) {
 
     return async function (ctx: Context, next?: Function): Promise<any> {
 
@@ -56,6 +59,12 @@ function resourceRouteFactory(factory: ResourceFactory, db: Sequelize, options: 
             formatter = db.formatter(formatter);
         }
 
+        let creator = factory.desc.creator;
+        if (creator) {
+            controller.creator = db.app.container.get(creator);
+        }
+
+
         if (formatter) controller.formatter = formatter;
 
         if (controller instanceof Resource) {
@@ -85,15 +94,20 @@ export enum Hook {
     ReadAll, Read, Create, Update, Delete
 };
 
-export class ResourceFactory {
-    desc: ResourceDescription = {};
+export class ResourceFactory<T extends IModel> {
+    desc: ResourceDescription<T> = {};
     hooks: Map<Hook, MiddlewareFunc[]> = new Map();
-    path(path: string): ResourceFactory {
+
+    constructor(model: string) {
+        this.desc.model = model;
+    }
+
+    path(path: string): ResourceFactory<T> {
         this.desc.path = path;
         return this;
     }
 
-    model(model: string): ResourceFactory {
+    model(model: string): ResourceFactory<T> {
         this.desc.model = model;
         return this;
     }
@@ -111,6 +125,11 @@ export class ResourceFactory {
         return this;
     }
 
+    creator<T extends IModel>(creator: ICreatorConstructor<T>) {
+        this.desc.creator = creator;
+        return this;
+    }
+
     controller(controller: any) {
         this.desc.controller = controller;
         return this;
@@ -120,11 +139,17 @@ export class ResourceFactory {
         let path = this.desc.path;
         let model = this.desc.model;
 
-        let o = { model: model, formatter: this.desc.formatter, action: 'index', middlewares: [] };
+        let o = { 
+            model: model, 
+            formatter: this.desc.formatter, 
+            action: 'index', 
+            middlewares: [],
+            creator: this.desc.creator
+         };
         
         router.get(path, resourceRouteFactory(this, db, Object.assign({}, o)));
         router.get(path + "/:id", resourceRouteFactory(this, db, Object.assign({}, o, { action: 'show' })))
-
+        
         let routes = this.desc.routes;
         if (routes) {
 
@@ -180,6 +205,7 @@ export function hasAssociatedQuery (q:any): boolean {
 export class Resource<T extends IModel> extends Controller {
     model: IModelList<T>
     formatter: QueryFormatter
+    creator: ICreator<T>
     constructor(protected db: Sequelize) {
         super();
     }
@@ -266,7 +292,7 @@ export class Resource<T extends IModel> extends Controller {
             q.attributes = [idAttribute]
             
             let ids = await this.model.findAll(q)
-            ids = _.pluck(ids, idAttribute)
+            ids = _.map<any,any>(ids, idAttribute)
             
             models = await this.model.findAll({
                 offset: offset,
@@ -307,11 +333,7 @@ export class Resource<T extends IModel> extends Controller {
            
 
             model = await this.model.findOne(q);
-            /*if (model && model.length == 1) {
-                model = model[0];
-            } else {
-                model = null;
-            }*/
+            
         } else {
             model = await this.model.findById(ctx.params['id'], q)
         }

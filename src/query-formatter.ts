@@ -1,6 +1,6 @@
 import {Sequelize} from './sequelize';
 import {Query, IModelList, IModel} from './interfaces';
-
+import {Model, Instance} from 'sequelize';
 export interface FormatDescription {
     model: string;
     as?:string;
@@ -148,7 +148,7 @@ export class QueryFormatter {
     private _parseQueries(desc:FormatDescription, o:any): any {
         let queries = desc.queries;
         
-        let model = this.db.model(desc.model);
+        let model: IModelList<IModel> = <any>this.db.model<IModel, IModel>(desc.model);
 
         let where = [];
         for (let i = 0, ii = queries.length; i < ii; i++) {
@@ -192,14 +192,14 @@ export class QueryFormatter {
         } else if (columns["only"]) {
             return columns["only"];
         } else if (columns["except"]) {
-            let model = this.db.model(desc.model)
+            let model: IModelList<IModel> = <any>this.db.model(desc.model)
             let attr = Object.keys(model.tableAttributes).filter( m => {
                 return !!!~columns["except"].indexOf(m)
             });
 
             return attr;
         } else {
-            let model = this.db.model(desc.model)
+            let model: IModelList<IModel> = <any>this.db.model(desc.model)
             let attr = Object.keys(model.tableAttributes)
             return attr
         }

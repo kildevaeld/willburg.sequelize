@@ -10,3 +10,9 @@ export declare class ModelTask implements ITask {
     constructor(sequelize: Sequelize);
     run(app: Willburg): Promise<void>;
 }
+export declare class CreatorTask implements ITask {
+    private db;
+    name: string;
+    constructor(db: Sequelize);
+    run(app: Willburg): Promise<void>;
+}

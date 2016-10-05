@@ -1,6 +1,6 @@
 {
   "name": "willburg.sequelize",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -14,9 +14,12 @@
     "merge2": "^1.0.2",
     "mocha": "^2.5.3",
     "recursive-readdir": "^2.0.0",
-    "requiredir": "^1.0.7"
+    "requiredir": "^1.0.7",
+    "sqlite3": "^3.1.5",
+    "willburg": "git+https://github.com/kildevaeld/willburg.git"
   },
   "dependencies": {
+    "ajv": "^4.7.7",
     "continuation-local-storage": "^3.1.7",
     "debug": "^2.2.0",
     "sequelize": "^3.23.4",

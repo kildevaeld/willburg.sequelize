@@ -1,0 +1,13 @@
+{
+  "dependencies": {},
+  "globalDependencies": {
+    "cookies": "registry:dt/cookies#0.5.1+20160316171810",
+    "formidable": "registry:dt/formidable#1.0.16+20160316155526",
+    "joi": "registry:dt/joi#9.0.0+20160906140128",
+    "koa": "registry:dt/koa#2.0.0+20160724024233",
+    "lodash": "registry:dt/lodash#4.14.0+20161004174455",
+    "node": "registry:dt/node#6.0.0+20160928143418",
+    "sequelize": "registry:dt/sequelize#3.4.1+20160929080558",
+    "validator": "registry:dt/validator#5.7.0+20160928122927"
+  }
+}

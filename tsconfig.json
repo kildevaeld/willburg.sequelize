@@ -19,6 +19,7 @@
     "src/query-formatter.ts",
     "src/resource.ts",
     "src/sequelize.ts",
-    "src/task.ts"
+    "src/task.ts",
+    "src/creator.ts"
   ]
 }

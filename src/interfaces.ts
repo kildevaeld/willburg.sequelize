@@ -1,4 +1,4 @@
-
+import {Model, Instance} from 'sequelize'
 
 export interface Query {
     where?:any[]|{[key:string]: any};
@@ -14,18 +14,18 @@ export interface Transaction {
   rollback(): Promise<any>;
 }
 
-export interface IModel {
-    toJSON(): any;
-    get(key: string): any;
-    destroy(): Promise<any>;
-    save(): Promise<this>
-    validate(): Promise<void>;
-    id: any;
+export interface IModel extends Instance<any> {
+    //toJSON(): any;
+    //get(key: string): any;
+    //destroy(): Promise<any>;
+    //save(): Promise<this>
+    //validate(): Promise<void>;
+    //id: any;
 }
 
-export interface IModelList<T extends IModel> {
+export interface IModelList<T extends IModel> extends Model<T, T> {
     tableAttributes:any;
-    findOne(o:string|number|Query, ...args): Promise<T>;
+    /*findOne(o:string|number|Query, ...args): Promise<T>;
     findOrBuild(o?, ...args): Promise<T>;
     findOrCreate(o?, ...args): Promise<[T, boolean]>;
     findAll(o?:Query, ...args): Promise<T[]>;
@@ -33,5 +33,5 @@ export interface IModelList<T extends IModel> {
     count(o?:Query, ...args): Promise<number>;
     create(o?, ...args): Promise<T>;
     bulkCreate(o?): Promise<T[]>
-    build(o?): T;
+    build(o?): T;*/
 }
