@@ -1,6 +1,6 @@
 "use strict";
 const lib_1 = require('../../../lib');
-const blog_1 = require('../models/blog');
+const blog_1 = require('../creators/blog');
 function default_1(app) {
     let db = app.container.get(lib_1.Sequelize);
     db.api("blog", (factory) => {

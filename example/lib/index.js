@@ -21,12 +21,6 @@ app.startAndListen(8080)
     let sq = app.container.get(index_1.Sequelize);
     return sq.sync().then(() => sq);
 })
-    .then(sq => {
-    return sq.model('blog').create({
-        title: "Blog 1",
-        body: "Hello"
-    });
-})
     .catch(e => {
     console.log(innerError(e));
 });
@@ -34,5 +28,5 @@ function innerError(e) {
     if (e.errors && e.errors.length) {
         return innerError(e.errors[0]);
     }
-    return e.message;
+    return e.stack;
 }

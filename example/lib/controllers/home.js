@@ -18,13 +18,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const willburg_1 = require('willburg');
 const lib_1 = require('../../../lib');
+const blog_1 = require('../creators/blog');
 let HomeController = class HomeController {
-    constructor(db) {
+    constructor(db, create) {
         this.db = db;
+        this.create = create;
     }
     index(ctx) {
         return __awaiter(this, void 0, void 0, function* () {
-            let blog = yield this.db.model("blog").findAll();
+            let blog = yield this.db.model("blog").build();
+            blog = yield this.create.update(blog, {
+                title: "Hello, World",
+                body: "This is a body"
+            });
             ctx.body = blog;
         });
     }
@@ -37,6 +43,6 @@ __decorate([
 ], HomeController.prototype, "index", null);
 HomeController = __decorate([
     willburg_1.decorators.controller(), 
-    __metadata('design:paramtypes', [lib_1.Sequelize])
+    __metadata('design:paramtypes', [lib_1.Sequelize, blog_1.BlogCreator])
 ], HomeController);
 exports.HomeController = HomeController;
