@@ -1,6 +1,6 @@
 import { requireDir, processDirectory } from 'willburg/lib/utils';
 import { decorators, Willburg, ITask, Configurable } from 'willburg'
-import { IModel, IModelList, Transaction } from './interfaces';
+import { IModel, IModelList } from './interfaces';
 import { QueryFormatter } from './query-formatter'
 import * as Debug from 'debug';
 import { ResourceFactory } from './resource'
@@ -87,7 +87,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
         this.seq = new SQ(o.database, o.username, o.password, o);
     }
 
-    transaction<T>(fn: (t: Transaction) => Promise<T>): Promise<T> {
+    transaction<T>(fn: (t: SQ.Transaction) => Promise<T>): Promise<T> {
         return this.seq.transaction(fn);
     }
 
