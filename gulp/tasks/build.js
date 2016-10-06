@@ -25,7 +25,7 @@ gulp.task('typescript', () => {
     
 });
 
-gulp.task('watch:typescript', () => {
+gulp.task('watch', () => {
     gulp.watch('src/**/*.ts', ['typescript']);
 });
 

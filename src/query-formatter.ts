@@ -1,6 +1,7 @@
 import {Sequelize} from './sequelize';
 import {Query, IModelList, IModel} from './interfaces';
 import {Model, Instance} from 'sequelize';
+
 export interface FormatDescription {
     model: string;
     as?:string;
@@ -18,7 +19,7 @@ export interface FormatDescription {
 
 export class QueryFormatter {
     static constants: {[key: string]: any} = {};
-    static queries: {[key: string]: (model:IModelList<IModel>, args:any[], o?) => any} = {};
+    static queries: {[key: string]: (model:IModelList<IModel<any>, any>, args:any[], o?) => any} = {};
     static filters: {[key: string]: (model: any, args: any[]) => any} = {};
 
     get idAttribute(): string {
@@ -28,11 +29,11 @@ export class QueryFormatter {
 
     constructor(private db: Sequelize, private _desc: FormatDescription) { }
 
-    public format(model: IModel): any {
+    public format<T>(model: IModel<T>): any {
         return this._formatDescription(model, this.description);
     }
 
-    public _formatDescription(model: IModel, desc: FormatDescription) {
+    public _formatDescription<T>(model: IModel<T>, desc: FormatDescription) {
         let json = model.toJSON();
         if (desc.include) {
 
@@ -148,7 +149,7 @@ export class QueryFormatter {
     private _parseQueries(desc:FormatDescription, o:any): any {
         let queries = desc.queries;
         
-        let model: IModelList<IModel> = <any>this.db.model<IModel, IModel>(desc.model);
+        let model: IModelList<IModel<any>, any> = <any>this.db.model(desc.model);
 
         let where = [];
         for (let i = 0, ii = queries.length; i < ii; i++) {
@@ -192,14 +193,14 @@ export class QueryFormatter {
         } else if (columns["only"]) {
             return columns["only"];
         } else if (columns["except"]) {
-            let model: IModelList<IModel> = <any>this.db.model(desc.model)
+            let model: IModelList<IModel<any>,any> = <any>this.db.model(desc.model)
             let attr = Object.keys(model.tableAttributes).filter( m => {
                 return !!!~columns["except"].indexOf(m)
             });
 
             return attr;
         } else {
-            let model: IModelList<IModel> = <any>this.db.model(desc.model)
+            let model: IModelList<IModel<any>,any> = <any>this.db.model(desc.model)
             let attr = Object.keys(model.tableAttributes)
             return attr
         }
@@ -211,7 +212,7 @@ export class QueryFormatter {
 
 QueryFormatter.constants["$DATE"] = () => new Date()
 
-QueryFormatter.queries["q"] = function (model: IModelList<IModel>, args:any[], o?) {
+QueryFormatter.queries["q"] = function (model: IModelList<IModel<any>,any>, args:any[], o?) {
     if (!o) return null;
     
     return args.map(m => {

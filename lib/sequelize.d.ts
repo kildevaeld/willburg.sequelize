@@ -1,14 +1,9 @@
 import { Willburg, Configurable } from 'willburg';
-import { IModel, IModelList, Transaction } from './interfaces';
+import { IModel, Transaction } from './interfaces';
 import { QueryFormatter } from './query-formatter';
 import { ResourceFactory } from './resource';
 import * as SQ from 'sequelize';
 export declare const DataTypes: SQ.DataTypes;
-export interface QueryOptions {
-    replacements?: any[];
-    model?: IModelList<IModel>;
-    type?: any;
-}
 export interface Options extends SQ.Options {
     models?: string;
     database?: string;
@@ -35,7 +30,7 @@ export declare class Sequelize implements Configurable<SequelizeOptions> {
     static DataTypes: SQ.DataTypes;
     seq: SQ.Sequelize;
     private _formatters;
-    factories: ResourceFactory<IModel>[];
+    factories: ResourceFactory<IModel<any>, any>[];
     constructor(options: SequelizeOptions, app: Willburg);
     transaction<T>(fn: (t: Transaction) => Promise<T>): Promise<T>;
     define<T, V>(name: string | ((Sequelize, DataTypes) => SQ.Model<T, V>), attr?: {
@@ -48,5 +43,5 @@ export declare class Sequelize implements Configurable<SequelizeOptions> {
     }, options?: SQ.QueryOptions): Promise<any>;
     formatter(name: string): QueryFormatter;
     sync(options?: SQ.SyncOptions): Promise<any>;
-    api<T extends IModel>(model: string, fn: (factory: ResourceFactory<T>) => void): Promise<void>;
+    api<T extends IModel<U>, U>(model: string, fn: (factory: ResourceFactory<T, U>) => void): Promise<void>;
 }

@@ -1,9 +1,9 @@
-import {Blog} from '../models/blog';
+import {Blog, BlogAttributes} from '../models/blog';
 import * as SQ from 'sequelize';
 import {AbstractCreator, IModel} from '../../../lib'
 
 
-export class BlogCreator extends AbstractCreator<Blog> {
+export class BlogCreator extends AbstractCreator<Blog, BlogAttributes> {
     schema = {
         type: "object",
         properties: {
@@ -16,7 +16,7 @@ export class BlogCreator extends AbstractCreator<Blog> {
         }
     }
     doUpdate(model:Blog, data:any, state?: any, t?): Promise<Blog> {
-
+        
         model.body = data.body;
         model.title = data.title;
 

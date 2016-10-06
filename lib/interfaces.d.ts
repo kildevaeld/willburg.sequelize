@@ -13,8 +13,8 @@ export interface Transaction {
     commit(): Promise<any>;
     rollback(): Promise<any>;
 }
-export interface IModel extends Instance<any> {
+export interface IModel<T> extends Instance<T> {
 }
-export interface IModelList<T extends IModel> extends Model<T, T> {
+export interface IModelList<T extends IModel<U>, U> extends Model<T, U> {
     tableAttributes: any;
 }

@@ -11,12 +11,12 @@ import * as _ from 'lodash';
 
 const compose = require('koa-compose');
 
-export interface ResourceDescription<T extends IModel> {
+export interface ResourceDescription<T extends IModel<U>, U> {
     model?: string;
     path?: string;
     middleware?: MiddlewareFunc[];
     controller?: any;
-    creator?: ICreatorConstructor<T>
+    creator?: ICreatorConstructor<T, U>
     formatter?: string | ((ctx: Context) => QueryFormatter);
     routes?: { path: string; method: string; middlewares: MiddlewareFunc[], action: string; }[]
 }
@@ -28,7 +28,7 @@ export interface ResourceRouteFactoryOptions {
     middlewares: MiddlewareFunc[]
 }
 
-function resourceRouteFactory<T extends IModel>(factory: ResourceFactory<T>, db: Sequelize, options: ResourceRouteFactoryOptions) {
+function resourceRouteFactory<T extends IModel<U>, U>(factory: ResourceFactory<T, U>, db: Sequelize, options: ResourceRouteFactoryOptions) {
 
     return async function (ctx: Context, next?: Function): Promise<any> {
 
@@ -94,20 +94,20 @@ export enum Hook {
     ReadAll, Read, Create, Update, Delete
 };
 
-export class ResourceFactory<T extends IModel> {
-    desc: ResourceDescription<T> = {};
+export class ResourceFactory<T extends IModel<U>, U> {
+    desc: ResourceDescription<T, U> = {};
     hooks: Map<Hook, MiddlewareFunc[]> = new Map();
 
     constructor(model: string) {
         this.desc.model = model;
     }
 
-    path(path: string): ResourceFactory<T> {
+    path(path: string): ResourceFactory<T, U> {
         this.desc.path = path;
         return this;
     }
 
-    model(model: string): ResourceFactory<T> {
+    model(model: string): ResourceFactory<T, U> {
         this.desc.model = model;
         return this;
     }
@@ -125,7 +125,7 @@ export class ResourceFactory<T extends IModel> {
         return this;
     }
 
-    creator<T extends IModel>(creator: ICreatorConstructor<T>) {
+    creator(creator: ICreatorConstructor<T, U>) {
         this.desc.creator = creator;
         return this;
     }
@@ -202,10 +202,10 @@ export function hasAssociatedQuery (q:any): boolean {
     return hasAssociatedQuery2(q.where)
 }
 
-export class Resource<T extends IModel> extends Controller {
-    model: IModelList<T>
+export class Resource<T extends IModel<U>, U> extends Controller {
+    model: IModelList<T, U>
     formatter: QueryFormatter
-    creator: ICreator<T>
+    creator: ICreator<T, U>
     constructor(protected db: Sequelize) {
         super();
     }
@@ -280,7 +280,7 @@ export class Resource<T extends IModel> extends Controller {
         q.offset = offset;
         q.limit = ret.limit;
 
-        let models: IModel[]
+        let models: IModel<any>[]
         
         // https://github.com/sequelize/sequelize/issues/6274
         if (hasAssociatedQuery(q)) {

@@ -20,7 +20,7 @@ export declare class QueryFormatter {
         [key: string]: any;
     };
     static queries: {
-        [key: string]: (model: IModelList<IModel>, args: any[], o?) => any;
+        [key: string]: (model: IModelList<IModel<any>, any>, args: any[], o?) => any;
     };
     static filters: {
         [key: string]: (model: any, args: any[]) => any;
@@ -28,8 +28,8 @@ export declare class QueryFormatter {
     idAttribute: string;
     description: FormatDescription;
     constructor(db: Sequelize, _desc: FormatDescription);
-    format(model: IModel): any;
-    _formatDescription(model: IModel, desc: FormatDescription): any;
+    format<T>(model: IModel<T>): any;
+    _formatDescription<T>(model: IModel<T>, desc: FormatDescription): T;
     query(o?: {}): Query;
     private _parseDescription(desc, o?);
     private _parseWhere(desc);

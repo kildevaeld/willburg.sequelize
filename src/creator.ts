@@ -6,17 +6,17 @@ import {inject} from 'willburg/lib/decorators'
 import * as Ajv from 'ajv'
 //const Ajv = require('ajv');
 
-export interface ICreator<T extends IModel> {
+export interface ICreator<T extends IModel<U>, U> {
     update(model: T, data: any, state?: any, wrap?: boolean): Promise<T>;
     remove(model: T): Promise<void>;
 }
 
-export interface ICreatorConstructor<T extends IModel> {
-    new(...args:any[]): ICreator<T>
+export interface ICreatorConstructor<T extends IModel<U>, U> {
+    new(...args:any[]): ICreator<T, U>
 }
 
 @inject(Sequelize)
-export abstract class AbstractCreator<T extends IModel> implements ICreator<T> {
+export abstract class AbstractCreator<T extends IModel<U>, U> implements ICreator<T, U> {
     schema: any;
     private _validator: any;
 
@@ -79,7 +79,7 @@ export abstract class AbstractCreator<T extends IModel> implements ICreator<T> {
 }
 
 export function creator(name?: string): ClassDecorator {
-    return function<T extends ICreatorConstructor<IModel>>(target: T) {
+    return function<T extends ICreatorConstructor<IModel<any>, any>>(target: T) {
         Reflect.defineMetadata(CreatorMetaKey, name || target.name, target);
     }
 }

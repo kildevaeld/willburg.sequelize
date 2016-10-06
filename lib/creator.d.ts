@@ -1,14 +1,14 @@
 import { IModel, Transaction } from './interfaces';
 import { Sequelize } from './sequelize';
 export declare const CreatorMetaKey: symbol;
-export interface ICreator<T extends IModel> {
+export interface ICreator<T extends IModel<U>, U> {
     update(model: T, data: any, state?: any, wrap?: boolean): Promise<T>;
     remove(model: T): Promise<void>;
 }
-export interface ICreatorConstructor<T extends IModel> {
-    new (...args: any[]): ICreator<T>;
+export interface ICreatorConstructor<T extends IModel<U>, U> {
+    new (...args: any[]): ICreator<T, U>;
 }
-export declare abstract class AbstractCreator<T extends IModel> implements ICreator<T> {
+export declare abstract class AbstractCreator<T extends IModel<U>, U> implements ICreator<T, U> {
     protected db: Sequelize;
     schema: any;
     private _validator;

@@ -14,7 +14,7 @@ export interface Transaction {
   rollback(): Promise<any>;
 }
 
-export interface IModel extends Instance<any> {
+export interface IModel<T> extends Instance<T> {
     //toJSON(): any;
     //get(key: string): any;
     //destroy(): Promise<any>;
@@ -23,7 +23,7 @@ export interface IModel extends Instance<any> {
     //id: any;
 }
 
-export interface IModelList<T extends IModel> extends Model<T, T> {
+export interface IModelList<T extends IModel<U>, U> extends Model<T, U> {
     tableAttributes:any;
     /*findOne(o:string|number|Query, ...args): Promise<T>;
     findOrBuild(o?, ...args): Promise<T>;

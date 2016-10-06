@@ -12,11 +12,6 @@ const cls = require('continuation-local-storage');
 
 export const DataTypes: SQ.DataTypes = require('sequelize/lib/data-types');
 
-export interface QueryOptions {
-    replacements?: any[];
-    model?: IModelList<IModel>;
-    type?: any
-}
 
 export interface Options extends SQ.Options {
     models?: string;
@@ -76,7 +71,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
     static DataTypes: SQ.DataTypes = DataTypes;
     seq: SQ.Sequelize;
     private _formatters: { [key: string]: QueryFormatter } = {};
-    factories: ResourceFactory<IModel>[] = [];
+    factories: ResourceFactory<IModel<any>, any>[] = [];
     constructor(public options: SequelizeOptions, public app: Willburg) {
         //super(options.database, options.username, options.password, options);
         let o = options;
@@ -120,8 +115,8 @@ export class Sequelize implements Configurable<SequelizeOptions> {
         return this.seq.sync(options)
     }
 
-    async api<T extends IModel>(model: string, fn: (factory: ResourceFactory<T>) => void) {
-        let factory = new ResourceFactory<T>(model);
+    async api<T extends IModel<U>, U>(model: string, fn: (factory: ResourceFactory<T, U>) => void) {
+        let factory = new ResourceFactory<T, U>(model);
         
         if (typeof fn === 'function') await fn(factory);
         this.factories.push(factory);
