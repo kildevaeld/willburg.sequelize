@@ -1,0 +1,8 @@
+example/
+gulp/
+src/
+test/
+typings/
+gulpfile.js
+tsconfig.json
+typings.json
