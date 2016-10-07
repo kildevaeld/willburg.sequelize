@@ -16,3 +16,9 @@ export declare class CreatorTask implements ITask {
     constructor(db: Sequelize);
     run(app: Willburg): Promise<void>;
 }
+export declare class FormatterTask implements ITask {
+    private db;
+    name: string;
+    constructor(db: Sequelize);
+    run(app: Willburg): Promise<void>;
+}

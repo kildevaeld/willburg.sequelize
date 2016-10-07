@@ -14,14 +14,35 @@ export const DataTypes: SQ.DataTypes = require('sequelize/lib/data-types');
 
 
 export interface Options extends SQ.Options {
+    /**
+     * Path to models
+     * 
+     * @type {string}
+     * @memberOf Options
+     */
     models?: string;
+    /**
+     * Path to formatters
+     * 
+     * @type {string}
+     * @memberOf Options
+     */
+    formatters?: string;
+    /**
+     * Path to creators
+     * 
+     * @type {string}
+     * @memberOf Options
+     */
+    creators?: string;
+
     database?: string;
     username?: string;
     password?: string;
     //creators: string;
     routes?: string;
     // Path to formatters
-    formatters?: string;
+    
     debug?: boolean;
 }
 

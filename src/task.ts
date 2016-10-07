@@ -1,4 +1,4 @@
-import {CreatorMetaKey} from './creator';
+import { CreatorMetaKey } from './creator';
 import { QueryFormatter } from './query-formatter';
 import { decorators, Willburg, ITask } from 'willburg';
 import { processDirectory, requireDir } from 'willburg/lib/utils';
@@ -35,20 +35,6 @@ export class ModelTask implements ITask {
                 debug('could not load models: %s', e)
             }
 
-            let formatters = this.sequelize.options.formatters;
-            if (formatters) {
-                await requireDir(formatters, (mod: any, path: string) => {
-                    debug("loading formattter from path: %s", path);
-                    if (mod.default) mod = mod.default;
-                    let formatter = new QueryFormatter(this.sequelize, mod)
-
-                    let name = mod.name || Path.basename(path, Path.extname(path));
-
-                    this.sequelize['_formatters'][name] = formatter;
-
-                    return Promise.resolve();
-                });
-            }
 
             let routes = this.sequelize.options.routes;
             if (routes) {
@@ -76,7 +62,7 @@ export class ModelTask implements ITask {
 @decorators.task()
 export class CreatorTask implements ITask {
     name = "CreatorTask";
-    constructor(private db: Sequelize) {}
+    constructor(private db: Sequelize) { }
 
     async run(app: Willburg): Promise<void> {
         let creators = this.db.options.creators;
@@ -94,5 +80,30 @@ export class CreatorTask implements ITask {
             });
 
         }
+    }
+}
+
+@decorators.inject(Sequelize)
+@decorators.task()
+export class FormatterTask implements ITask {
+    name = "FormatterTask";
+    constructor(private db: Sequelize) { }
+
+    async run(app: Willburg): Promise<void> {
+        let formatters = this.db.options.formatters;
+        if (formatters) {
+            await requireDir(formatters, (mod: any, path: string) => {
+                debug("loading formattter from path: %s", path);
+                if (mod.default) mod = mod.default;
+                let formatter = new QueryFormatter(this.db, mod)
+
+                let name = mod.name || Path.basename(path, Path.extname(path));
+
+                this.db['_formatters'][name] = formatter;
+
+                return Promise.resolve();
+            });
+        }
+
     }
 }

@@ -5,12 +5,31 @@ import { ResourceFactory } from './resource';
 import * as SQ from 'sequelize';
 export declare const DataTypes: SQ.DataTypes;
 export interface Options extends SQ.Options {
+    /**
+     * Path to models
+     *
+     * @type {string}
+     * @memberOf Options
+     */
     models?: string;
+    /**
+     * Path to formatters
+     *
+     * @type {string}
+     * @memberOf Options
+     */
+    formatters?: string;
+    /**
+     * Path to creators
+     *
+     * @type {string}
+     * @memberOf Options
+     */
+    creators?: string;
     database?: string;
     username?: string;
     password?: string;
     routes?: string;
-    formatters?: string;
     debug?: boolean;
 }
 export declare class SequelizeOptions implements Options {
