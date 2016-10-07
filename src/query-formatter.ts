@@ -1,6 +1,7 @@
 import {Sequelize} from './sequelize';
 import {Query, IModelList, IModel} from './interfaces';
 import {Model, Instance} from 'sequelize';
+import * as _ from 'lodash';
 
 export interface FormatDescription {
     model: string;
@@ -250,5 +251,18 @@ QueryFormatter.filters['rename'] = function(model: any, args:any) {
             delete model[key];
         }
     }
+    return model;
+}
+
+QueryFormatter.filters['except'] = function(model: any, args: any[]) {
+    if (!model) return model;
+    if (args == null || args.length === 0) throw new Error('format#except: no args');
+
+    for (let i = 0, ii = args.length; i < ii; i++ ) {
+        if (_.has(model, args[i])) {
+            delete model[args[i]];
+        }
+    }
+
     return model;
 }
