@@ -48,27 +48,7 @@ export interface Options extends SQ.Options {
 
 
 export class SequelizeOptions implements Options {
-    /*dialect: string;
-    dialectModulePath: string;
-    dialectOptions: Object;
-    storage: string;
-    host: string;
-    port: number;
-    protocol: string;
-    define: SQ.DefineOptions<any>;
-    query: SQ.QueryOptions;
-    set: SQ.SetOptions;
-    sync: SQ.SyncOptions;
-    timezone: string;
-    logging: boolean | Function;
-    omitNull: boolean;
-    native: boolean;
-    replication: SQ.ReplicationOptions;
-    pool: SQ.PoolOptions;
-    quoteIdentifiers: boolean;
-    isolationLevel: string;
-    transactionType: string;*/
-
+    
     database: string;
     username: string;
     password: string;
@@ -126,6 +106,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
 
     query<T, V>(sql: string | { query: string, values: any[] }, options?: SQ.QueryOptions): Promise<any> {
         return this.seq.query(sql, options);
+        
     }
 
     formatter(name: string): QueryFormatter {
