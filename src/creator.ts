@@ -16,13 +16,13 @@ export interface ICreatorConstructor<T extends IModel<U>, U> {
 }
 
 @inject(Sequelize)
-export abstract class AbstractCreator<T extends IModel<U>, U> implements ICreator<T, U> {
+export abstract class AbstractCreator<T extends IModel<U>, U, S> implements ICreator<T, U> {
     schema: any;
     private _validator: any;
 
     constructor(protected db: Sequelize) { }
 
-    update(model: T, data: any, state?: any, wrap: boolean = false): Promise<T> {
+    update(model: T, data: any, state?: S, wrap: boolean = false): Promise<T> {
 
         return this.validate(data).then(_ => {
 
@@ -69,7 +69,7 @@ export abstract class AbstractCreator<T extends IModel<U>, U> implements ICreato
         return model.destroy();
     }
 
-    protected abstract doUpdate(model: T, data: any, state?: any, t?: Transaction): Promise<T>;
+    protected abstract doUpdate(model: T, data: any, state?: S, t?: Transaction): Promise<T>;
 
 
     protected loadSchema(uri: string, cb: Function) {
