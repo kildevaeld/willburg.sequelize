@@ -1,13 +1,12 @@
 
-import {decorators, Context, MiddlewareFunc, IRouter, Controller, Factories} from 'willburg';
-import {Sequelize} from './sequelize';
-import {IModelList, IModel, Query} from './interfaces'
-import {DIContainer} from 'stick.di';
-import {QueryFormatter} from './query-formatter';
-import {ICreator, ICreatorConstructor} from './creator'
+import { decorators, Context, MiddlewareFunc, IRouter, Controller, Factories } from 'willburg';
+import { Sequelize } from './sequelize';
+import { IModelList, IModel, Query } from './interfaces'
+import { DIContainer } from 'stick.di';
+import { QueryFormatter } from './query-formatter';
+import { ICreator, ICreatorConstructor } from './creator'
 
 import * as Path from 'path';
-import * as _ from 'lodash';
 
 const compose = require('koa-compose');
 
@@ -112,7 +111,7 @@ export class ResourceFactory<T extends IModel<U>, U> {
         return this;
     }
 
-    use(hook:Hook|MiddlewareFunc, ...fn: MiddlewareFunc[]) {
+    use(hook: Hook | MiddlewareFunc, ...fn: MiddlewareFunc[]) {
         if (!this.desc.middleware) this.desc.middleware = [];
         if (typeof hook === 'function') {
             let fns = [(<any>hook)].concat(fn);
@@ -139,17 +138,17 @@ export class ResourceFactory<T extends IModel<U>, U> {
         let path = this.desc.path;
         let model = this.desc.model;
 
-        let o = { 
-            model: model, 
-            formatter: this.desc.formatter, 
-            action: 'index', 
+        let o = {
+            model: model,
+            formatter: this.desc.formatter,
+            action: 'index',
             middlewares: [],
             creator: this.desc.creator
-         };
-        
+        };
+
         router.get(path, resourceRouteFactory(this, db, Object.assign({}, o)));
         router.get(path + "/:id", resourceRouteFactory(this, db, Object.assign({}, o, { action: 'show' })))
-        
+
         let routes = this.desc.routes;
         if (routes) {
 
@@ -179,7 +178,7 @@ export class ResourceFactory<T extends IModel<U>, U> {
 
 const aFieldReg = /^\$[a-zA-Z.]+\$$/;
 
-function hasAssociatedQuery2 (where: any): boolean {
+function hasAssociatedQuery2(where: any): boolean {
     if (Array.isArray(where)) {
         for (let a of where) {
             if (hasAssociatedQuery2(a)) return true;
@@ -194,10 +193,10 @@ function hasAssociatedQuery2 (where: any): boolean {
         }
     }
     return false;
-}   
+}
 
-export function hasAssociatedQuery (q:any): boolean {
-    if (q.limit == null) return false   
+export function hasAssociatedQuery(q: any): boolean {
+    if (q.limit == null) return false
     if (q == null || q.where == null) return false;
     return hasAssociatedQuery2(q.where)
 }
@@ -210,20 +209,20 @@ export class Resource<T extends IModel<U>, U> extends Controller {
         super();
     }
 
-    private _buildPagination(total: number, ctx: Context): {page:number; pages:number; limit:number;} {
+    private _buildPagination(total: number, ctx: Context): { page: number; pages: number; limit: number; } {
         let page = ctx.query.page ? parseInt(ctx.query.page) : 1;
         if (page <= 0) page = 1;
-        let limit = ctx.query.limit  ? parseInt(ctx.query.limit) : 100;
+        let limit = ctx.query.limit ? parseInt(ctx.query.limit) : 100;
         let pages = Math.ceil(total / limit);
-        
+
         if (page > pages) {
-            return {page: page, pages: pages, limit: limit};
+            return { page: page, pages: pages, limit: limit };
         }
 
         let path = ctx.originalUrl,
             i = path.indexOf('?');
         if (~i) path = path.substr(0, i);
-        
+
         let url = ctx.protocol + '://' + ctx.request.get('Host') + path + '?page=';
 
         let links: any = { current: page, first: 1, last: pages };
@@ -236,11 +235,11 @@ export class Resource<T extends IModel<U>, U> extends Controller {
 
         ctx.links(links);
 
-        return {page: page, pages: pages, limit: limit};
+        return { page: page, pages: pages, limit: limit };
     }
 
     async index(ctx: Context) {
-        
+
         ctx.type = "json";
 
         let query = ctx.query
@@ -270,46 +269,63 @@ export class Resource<T extends IModel<U>, U> extends Controller {
             return
         }
 
-        let ret = this._buildPagination(count, ctx);
-        if (ret.page > ret.pages) {
-            ctx.body = [];
-            return;
+        let isPaginated = ctx.query['page'] != null && ctx.query["page"] != "";
+
+        if (isPaginated) {
+            let ret = this._buildPagination(count, ctx);
+            if (ret.page > ret.pages) {
+                ctx.body = [];
+                return;
+            }
+
+            let offset = (ret.page - 1) * ret.limit;
+            q.offset = offset;
+            q.limit = ret.limit;
         }
 
-        let offset = (ret.page - 1) * ret.limit;
-        q.offset = offset;
-        q.limit = ret.limit;
+
 
         let models: IModel<any>[]
-        
+
         // https://github.com/sequelize/sequelize/issues/6274
         if (hasAssociatedQuery(q)) {
-            
+
             delete q.limit
             let attr = q.attributes;
-            
+
             let idAttribute = this.formatter && this.formatter.idAttribute ? this.formatter.idAttribute : 'id'
             q.attributes = [idAttribute]
-            
+
             let ids = await this.model.findAll(q)
-            ids = _.map<any,any>(ids, idAttribute)
-            
+            ids = ids.map(id => id[idAttribute])  //_.map<any, any>(ids, idAttribute)
+
+            /*let qq: Query = {
+                include: q.include,
+                order: q.order,
+                attributes: attr,
+                where: { [idAttribute]: { $in: ids } }
+            }
+            if (isPaginated) {
+                qq.limit = q.limit
+                qq.offset = q.offset
+            }*/
+
             models = await this.model.findAll({
-                offset: offset,
-                limit: ret.limit,
+                //offset: offset,
+                //limit: ret.limit,
                 include: q.include,
                 order: q.order,
                 attributes: attr,
                 where: {
                     [idAttribute]: { $in: ids }
                 }
-            }); 
+            });
 
         } else {
-            models = await this.model.findAll(q);    
+            models = await this.model.findAll(q);
         }
 
-        
+
 
         if (this.formatter) {
             ctx.body = models.map(m => this.formatter.format(m))
@@ -329,11 +345,11 @@ export class Resource<T extends IModel<U>, U> extends Controller {
 
         let model;
         if (this.formatter && this.formatter.idAttribute != "id") {
-            q.where = {[this.formatter.idAttribute]: ctx.params['id']};
-           
+            q.where = { [this.formatter.idAttribute]: ctx.params['id'] };
+
 
             model = await this.model.findOne(q);
-            
+
         } else {
             model = await this.model.findById(ctx.params['id'], q)
         }

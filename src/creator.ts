@@ -1,10 +1,9 @@
 
-import {IModel, Transaction} from './interfaces';
-import {Sequelize} from './sequelize';
+import { IModel, Transaction } from './interfaces';
+import { Sequelize } from './sequelize';
 export const CreatorMetaKey = Symbol.for("sequelize::creator::key")
-import {inject} from 'willburg/lib/decorators'
+import { inject } from 'willburg/lib/decorators'
 import * as Ajv from 'ajv'
-//const Ajv = require('ajv');
 
 export interface ICreator<T extends IModel<U>, U> {
     update(model: T, data: any, state?: any, wrap?: boolean): Promise<T>;
@@ -12,7 +11,7 @@ export interface ICreator<T extends IModel<U>, U> {
 }
 
 export interface ICreatorConstructor<T extends IModel<U>, U> {
-    new(...args:any[]): ICreator<T, U>
+    new (...args: any[]): ICreator<T, U>
 }
 
 @inject(Sequelize)
@@ -79,7 +78,7 @@ export abstract class AbstractCreator<T extends IModel<U>, U, S> implements ICre
 }
 
 export function creator(name?: string): ClassDecorator {
-    return function<T extends ICreatorConstructor<IModel<any>, any>>(target: T) {
+    return function <T extends ICreatorConstructor<IModel<any>, any>>(target: T) {
         Reflect.defineMetadata(CreatorMetaKey, name || target.name, target);
     }
 }
