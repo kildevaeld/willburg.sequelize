@@ -1,6 +1,6 @@
 {
   "name": "willburg.sequelize",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -25,7 +25,7 @@
     "debug": "^2.2.0",
     "lodash": "^4.16.4",
     "sequelize": "^3.23.4",
-    "willburg": "git+https://github.com/kildevaeld/willburg.git"
+    "orange": "git+https://github.com/kildevaeld/orange"
   },
   "peerDependencies": {
     "willburg": "git+https://github.com/kildevaeld/willburg.git",

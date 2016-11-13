@@ -5,6 +5,7 @@ import { IModelList, IModel, Query } from './interfaces'
 import { DIContainer } from 'stick.di';
 import { QueryFormatter } from './query-formatter';
 import { ICreator, ICreatorConstructor } from './creator'
+import { Queue } from './queue';
 
 import * as Path from 'path';
 
@@ -205,8 +206,18 @@ export class Resource<T extends IModel<U>, U> extends Controller {
     model: IModelList<T, U>
     formatter: QueryFormatter
     creator: ICreator<T, U>
+
+    private _queue: Queue<T, U>;
+
     constructor(protected db: Sequelize) {
         super();
+    }
+
+    get queue(): Queue<T, U> {
+        if (this._queue) {
+            this._queue = new Queue<T, U>(this.model);
+        }
+        return this._queue
     }
 
     private _buildPagination(total: number, ctx: Context): { page: number; pages: number; limit: number; } {
@@ -301,18 +312,9 @@ export class Resource<T extends IModel<U>, U> extends Controller {
             let ids = await this.model.findAll(q)
             ids = ids.map(id => id[idAttribute])  //_.map<any, any>(ids, idAttribute)
 
-            /*let qq: Query = {
-                include: q.include,
-                order: q.order,
-                attributes: attr,
-                where: { [idAttribute]: { $in: ids } }
-            }
-            if (isPaginated) {
-                qq.limit = q.limit
-                qq.offset = q.offset
-            }*/
 
-            models = await this.model.findAll({
+
+            /*models = await this.model.findAll({
                 //offset: offset,
                 //limit: ret.limit,
                 include: q.include,
@@ -321,10 +323,21 @@ export class Resource<T extends IModel<U>, U> extends Controller {
                 where: {
                     [idAttribute]: { $in: ids }
                 }
-            });
+            });*/
+            models = <any>this.queue.findAll({
+                //offset: offset,
+                //limit: ret.limit,
+                include: q.include,
+                order: q.order,
+                attributes: attr,
+                where: {
+                    [idAttribute]: { $in: ids }
+                }
+            }, this.formatter)
 
         } else {
-            models = await this.model.findAll(q);
+            //models = await this.model.findAll(q);
+            models = <any>this.queue.findAll(q, this.formatter);
         }
 
 

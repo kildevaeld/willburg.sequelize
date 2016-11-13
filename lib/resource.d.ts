@@ -3,6 +3,7 @@ import { Sequelize } from './sequelize';
 import { IModelList, IModel } from './interfaces';
 import { QueryFormatter } from './query-formatter';
 import { ICreator, ICreatorConstructor } from './creator';
+import { Queue } from './queue';
 export interface ResourceDescription<T extends IModel<U>, U> {
     model?: string;
     path?: string;
@@ -49,7 +50,9 @@ export declare class Resource<T extends IModel<U>, U> extends Controller {
     model: IModelList<T, U>;
     formatter: QueryFormatter;
     creator: ICreator<T, U>;
+    private _queue;
     constructor(db: Sequelize);
+    queue: Queue<T, U>;
     private _buildPagination(total, ctx);
     index(ctx: Context): Promise<void>;
     show(ctx: Context): Promise<void>;

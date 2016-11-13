@@ -14,12 +14,13 @@
   ],
   "files": [
     "typings/index.d.ts",
+    "src/creator.ts",
     "src/index.ts",
     "src/interfaces.ts",
     "src/query-formatter.ts",
+    "src/queue.ts",
     "src/resource.ts",
     "src/sequelize.ts",
-    "src/task.ts",
-    "src/creator.ts"
+    "src/task.ts"
   ]
 }
