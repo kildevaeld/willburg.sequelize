@@ -54,4 +54,5 @@ export declare class Resource<T extends IModel<U>, U> extends Controller {
     index(ctx: Context): Promise<void>;
     show(ctx: Context): Promise<void>;
     create(ctx: Context): void;
+    private _getFormatter(ctx);
 }

@@ -245,8 +245,10 @@ export class Resource<T extends IModel<U>, U> extends Controller {
         let query = ctx.query
         let q: Query = {};
 
-        if (this.formatter) {
-            q = this.formatter.query(query);
+        let formatter = this._getFormatter(ctx)
+
+        if (formatter) {
+            q = formatter.query(query);
         }
 
 
@@ -293,7 +295,7 @@ export class Resource<T extends IModel<U>, U> extends Controller {
             delete q.limit
             let attr = q.attributes;
 
-            let idAttribute = this.formatter && this.formatter.idAttribute ? this.formatter.idAttribute : 'id'
+            let idAttribute = formatter && formatter.idAttribute ? formatter.idAttribute : 'id'
             q.attributes = [idAttribute]
 
             let ids = await this.model.findAll(q)
@@ -326,9 +328,8 @@ export class Resource<T extends IModel<U>, U> extends Controller {
         }
 
 
-
-        if (this.formatter) {
-            ctx.body = models.map(m => this.formatter.format(m))
+        if (formatter) {
+            ctx.body = models.map(m => formatter.format(m))
         } else {
             ctx.body = models;
         }
@@ -338,14 +339,17 @@ export class Resource<T extends IModel<U>, U> extends Controller {
     async show(ctx: Context) {
         let query = ctx.query
         let q: Query = {};
-        if (this.formatter) {
-            q = this.formatter.query(query);
+
+        let formatter = this._getFormatter(ctx)
+
+        if (formatter) {
+            q = formatter.query(query);
             delete q.where
         }
 
         let model;
-        if (this.formatter && this.formatter.idAttribute != "id") {
-            q.where = { [this.formatter.idAttribute]: ctx.params['id'] };
+        if (formatter && formatter.idAttribute != "id") {
+            q.where = { [formatter.idAttribute]: ctx.params['id'] };
 
 
             model = await this.model.findOne(q);
@@ -359,8 +363,8 @@ export class Resource<T extends IModel<U>, U> extends Controller {
             ctx.throw(404);
         }
 
-        if (this.formatter) {
-            ctx.body = this.formatter.format(model)
+        if (formatter) {
+            ctx.body = formatter.format(model)
         } else {
             ctx.body = model
         }
@@ -368,6 +372,13 @@ export class Resource<T extends IModel<U>, U> extends Controller {
 
     create(ctx: Context) {
 
+    }
+
+    private _getFormatter(ctx: Context) {
+        if (ctx.state.formatter && ctx.state.formater instanceof QueryFormatter) {
+            return ctx.state.formatter;
+        }
+        return this.formatter
     }
 
 }
