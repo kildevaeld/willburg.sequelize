@@ -30,9 +30,52 @@ export interface ResourceRouteFactoryOptions {
 
 function resourceRouteFactory<T extends IModel<U>, U>(factory: ResourceFactory<T, U>, db: Sequelize, options: ResourceRouteFactoryOptions) {
 
-    return async function (ctx: Context, next?: Function): Promise<any> {
+    var controller;
+    if (!controller) {
+        let Controller = factory.desc.controller || Resource;
+        controller = new Controller(db);
+    }
 
-        var controller;
+    let m = db.model(options.model);
+    controller.model = m;
+
+    if (options.formatter) {
+        controller.formatter = db.formatter(<string>options.formatter);
+    }
+
+
+    let formatter: any = factory.desc.formatter
+    if (typeof formatter === 'function') {
+        //formatter = (formatter as (ctx: Context) => QueryFormatter)(ctx);
+    } else if (typeof formatter === 'string') {
+        formatter = db.formatter(formatter);
+    }
+
+    let creator = factory.desc.creator;
+    if (creator) {
+        controller.creator = db.app.container.get(creator);
+    }
+
+
+    if (formatter) controller.formatter = formatter;
+
+
+    if (controller instanceof Resource) {
+        if (factory.desc.middleware) {
+            controller.use(...factory.desc.middleware);
+        }
+
+        if (options.middlewares && options.middlewares.length > 0) {
+            controller.use(...options.middlewares);
+        }
+
+        ///return await controller.handleRequest(options.action, ctx, next);
+    }
+
+
+    return function (ctx: Context, next?: Function): Promise<any> {
+
+        /*var controller;
         if (!controller) {
             let Controller = factory.desc.controller || Resource;
             controller = new Controller(db);
@@ -43,7 +86,7 @@ function resourceRouteFactory<T extends IModel<U>, U>(factory: ResourceFactory<T
 
         if (options.formatter) {
             controller.formatter = db.formatter(<string>options.formatter);
-        }
+        }*/
 
         if (ctx.params['id']) {
             if (!/[0-9]+/.test(ctx.params['id'])) {
@@ -51,14 +94,7 @@ function resourceRouteFactory<T extends IModel<U>, U>(factory: ResourceFactory<T
                 return next()
             }
         }
-
-        let formatter: any = factory.desc.formatter
-        if (typeof formatter === 'function') {
-            formatter = (formatter as (ctx: Context) => QueryFormatter)(ctx);
-        } else if (typeof formatter === 'string') {
-            formatter = db.formatter(formatter);
-        }
-
+        /*
         let creator = factory.desc.creator;
         if (creator) {
             controller.creator = db.app.container.get(creator);
@@ -67,16 +103,17 @@ function resourceRouteFactory<T extends IModel<U>, U>(factory: ResourceFactory<T
 
         if (formatter) controller.formatter = formatter;
 
+        */
         if (controller instanceof Resource) {
-            if (factory.desc.middleware) {
+            /*if (factory.desc.middleware) {
                 controller.use(...factory.desc.middleware);
             }
 
             if (options.middlewares && options.middlewares.length > 0) {
                 controller.use(...options.middlewares);
-            }
+            }*/
 
-            return await controller.handleRequest(options.action, ctx, next);
+            return controller.handleRequest(options.action, ctx, next);
         } else {
             if (factory.desc.middleware) {
                 return compose(factory.desc.middleware)(ctx, next).then(() => {
@@ -214,7 +251,7 @@ export class Resource<T extends IModel<U>, U> extends Controller {
     }
 
     get queue(): Queue<T, U> {
-        if (this._queue) {
+        if (!this._queue) {
             this._queue = new Queue<T, U>(this.model);
         }
         return this._queue
@@ -263,28 +300,33 @@ export class Resource<T extends IModel<U>, U> extends Controller {
         }
 
 
-        let count = 0;
-        if (q.include) {
-            let c = await this.model.findAll({
-                where: q.where,
-                attributes: ["id"],
-                include: q.include
-            });
-            count = c.length;
-        } else {
-            count = await this.model.count(q);
-        }
-
-        ctx.set("X-Total", count);
-
-        if (count == 0) {
-            ctx.body = [];
-            return
-        }
-
         let isPaginated = ctx.query['page'] != null && ctx.query["page"] != "";
 
         if (isPaginated) {
+
+
+            let count = 0;
+            if (q.include && hasAssociatedQuery(q)) {
+                let c = await this.model.findAll({
+                    where: q.where,
+                    attributes: ["id"],
+                    include: q.include
+                });
+                count = c.length;
+            } else {
+                count = await this.model.count({
+                    where: q.where
+                });
+            }
+
+            ctx.set("X-Total", count);
+
+            if (count == 0) {
+                ctx.body = [];
+                return
+            }
+
+
             let ret = this._buildPagination(count, ctx);
             if (ret.page > ret.pages) {
                 ctx.body = [];
@@ -310,11 +352,9 @@ export class Resource<T extends IModel<U>, U> extends Controller {
             q.attributes = [idAttribute]
 
             let ids = await this.model.findAll(q)
-            ids = ids.map(id => id[idAttribute])  //_.map<any, any>(ids, idAttribute)
+            ids = ids.map(id => id[idAttribute])
 
-
-
-            /*models = await this.model.findAll({
+            models = await this.queue.findAll(ctx.originalUrl, {
                 //offset: offset,
                 //limit: ret.limit,
                 include: q.include,
@@ -323,29 +363,13 @@ export class Resource<T extends IModel<U>, U> extends Controller {
                 where: {
                     [idAttribute]: { $in: ids }
                 }
-            });*/
-            models = <any>this.queue.findAll({
-                //offset: offset,
-                //limit: ret.limit,
-                include: q.include,
-                order: q.order,
-                attributes: attr,
-                where: {
-                    [idAttribute]: { $in: ids }
-                }
-            }, this.formatter)
+            }, formatter)
 
         } else {
-            //models = await this.model.findAll(q);
-            models = <any>this.queue.findAll(q, this.formatter);
+            models = await this.queue.findAll(ctx.originalUrl, q, formatter);
         }
 
-
-        if (formatter) {
-            ctx.body = models.map(m => formatter.format(m))
-        } else {
-            ctx.body = models;
-        }
+        ctx.body = models;
 
     }
 

@@ -1,19 +1,18 @@
 
-import { Sequelize, QueryFormatter, IModelList } from 'willburg.sequelize';
 import { Model } from 'sequelize';
-import { equal, Deferred, deferred } from 'orange';
+import { equal, Deferred, deferred, extend } from 'orange';
 import { EventEmitter } from 'events';
-
+import { Sequelize } from './sequelize';
+import { QueryFormatter } from './query-formatter';
 
 export enum QueryType {
     One, All
 }
 
-
 export class QueueItem<T, A> extends EventEmitter {
     handlers: Deferred<any>[] = [];
     running: boolean = false;
-    constructor(private type: QueryType, private model: Model<T, A>, private q: any, private formatter: QueryFormatter) {
+    constructor(public id: string, private type: QueryType, private model: Model<T, A>, private q: any, private formatter: QueryFormatter) {
         super();
     }
 
@@ -23,7 +22,7 @@ export class QueueItem<T, A> extends EventEmitter {
     }
 
     equal(other: QueueItem<T, A>) {
-        return equal(this.q, other.q) && equal(this.formatter, other.formatter) && this.type == other.type;
+        return this.id === other.id && equal(this.formatter, other.formatter) && this.type == other.type;
     }
 
     run() {
@@ -33,7 +32,23 @@ export class QueueItem<T, A> extends EventEmitter {
         this.running = true;
         let result;
         if (this.type === QueryType.All) {
-            result = this.model.findAll(this.q).then(m => m.map(mm => this.formatter.format(mm)));
+            let q = extend({}, this.q || {});
+            if (q.include && (q.offset != null || q.limit != null)) {
+                result = this.model.findAll({
+                    attributes: ['id'],
+                    where: q.where,
+                    limit: q.limit,
+                    offset: q.offset
+                }).then(ids => {
+                    delete q.offset;
+                    delete q.limit;
+                    q.where = { id: ids.map(m => (<any>m).id) };
+                    return this.model.findAll(q)
+                })
+            } else {
+                result = this.model.findAll(this.q).then(m => m.map(mm => this.formatter.format(mm)));
+            }
+
         } else {
             result = this.model.find(this.q).then(m => this.formatter.format(m));
         }
@@ -45,8 +60,11 @@ export class QueueItem<T, A> extends EventEmitter {
         }
 
         result.then(result => {
-            for (let deferred of this.handlers) {
+            /*for (let deferred of this.handlers) {
                 deferred.resolve(result);
+            }*/
+            for (let i = this.handlers.length - 1, ii = 0; i >= ii; i--) {
+                this.handlers[i].resolve(result);
             }
             done();
         }).catch(e => {
@@ -61,7 +79,7 @@ export class QueueItem<T, A> extends EventEmitter {
 
 export class Queue<T, A> {
     queue: QueueItem<T, A>[] = [];
-    constructor(private model: IModelList<T, A>) {
+    constructor(private model: Model<T, A>) {
 
     }
 
@@ -70,8 +88,8 @@ export class Queue<T, A> {
 
     }
 
-    private add(type: QueryType, q: any, formatter: QueryFormatter) {
-        let item = new QueueItem<T, A>(type, this.model, q, formatter);
+    private add(key: string, type: QueryType, q: any, formatter: QueryFormatter) {
+        let item = new QueueItem<T, A>(key, type, this.model, q, formatter);
         let found = false;
 
         for (let i of this.queue) {
@@ -86,7 +104,8 @@ export class Queue<T, A> {
             this.queue.push(item);
             item.on('done', () => {
                 this.remove(item);
-            })
+            });
+            item.run();
         }
 
         let promise = deferred();
@@ -94,12 +113,12 @@ export class Queue<T, A> {
         return promise.promise;
     }
 
-    findOne(q: any, formatter: QueryFormatter): Promise<any> {
-        return this.add(QueryType.One, q, formatter) as Promise<any>;
+    findOne(key: string, q: any, formatter: QueryFormatter): Promise<any> {
+        return this.add(key, QueryType.One, q, formatter) as Promise<any>;
     }
 
-    findAll(q: any, formatter: QueryFormatter): Promise<any> {
-        return this.add(QueryType.All, q, formatter) as Promise<any>;
+    findAll(key: string, q: any, formatter: QueryFormatter): Promise<any> {
+        return this.add(key, QueryType.All, q, formatter) as Promise<any>;
     }
 
 }

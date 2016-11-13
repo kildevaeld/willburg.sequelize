@@ -36,10 +36,10 @@ export class QueryFormatter {
 
     public _formatDescription<T>(model: IModel<T>, desc: FormatDescription) {
         let json = model.toJSON();
-        if (desc.include) {
+        if (desc.include && desc.include.length) {
 
             let includeMap = model["$options"].includeMap;
-            let includes = model["$options"].include;
+            let includes = model["$options"].include || [];
             let getModel = (name: string): { key: string; model: string } => {
                 for (let key in includeMap) {
                     if (includeMap[key].as) {
