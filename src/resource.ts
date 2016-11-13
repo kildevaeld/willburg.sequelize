@@ -375,7 +375,7 @@ export class Resource<T extends IModel<U>, U> extends Controller {
     }
 
     private _getFormatter(ctx: Context) {
-        if (ctx.state.formatter && ctx.state.formater instanceof QueryFormatter) {
+        if (ctx.state.formatter && ctx.state.formatter instanceof QueryFormatter) {
             return ctx.state.formatter;
         }
         return this.formatter
