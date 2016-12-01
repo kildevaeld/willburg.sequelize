@@ -17,7 +17,7 @@
     "recursive-readdir": "^2.0.0",
     "requiredir": "^1.0.7",
     "sqlite3": "^3.1.5",
-    "willburg": "github:kildevaeld/willburg"
+    "willburg": "github:kildevaeld/willburg#v0.3.1"
   },
   "dependencies": {
     "ajv": "^4.7.7",
@@ -28,7 +28,7 @@
     "orange": "github:kildevaeld/orange"
   },
   "peerDependencies": {
-    "willburg": "github:kildevaeld/willburg"
+    "willburg": "github:kildevaeld/willburg#v0.3.1"
   },
   "typings": "lib/index"
 }
