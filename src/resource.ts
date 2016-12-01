@@ -113,7 +113,7 @@ function resourceRouteFactory<T extends IModel<U>, U>(factory: ResourceFactory<T
                 controller.use(...options.middlewares);
             }*/
 
-            if (options.middlewares) {
+            if (options.middlewares && options.middlewares.length) {
                 return compose(options.middlewares.concat([controller[options.action].bind(controller)]))(ctx, next)
             }
             
