@@ -147,7 +147,7 @@ export class ResourceFactory<T extends IModel<U>, U> {
 
                 if (!fn) {
                     if (controller instanceof Resource || controller instanceof Controller) {
-                        fn = (ctx, next) => controller.handleRequest(action, ctx, next);
+                        fn = (ctx, next) => controller.handleRequest(action, ctx, middlewares, next);
 
                     } else {
                         fn = compose(middlewares.concat([controller[action].bind(controller)]));
