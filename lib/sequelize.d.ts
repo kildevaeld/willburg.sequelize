@@ -1,7 +1,7 @@
 import { Willburg, Configurable } from 'willburg';
 import { IModel } from './interfaces';
 import { QueryFormatter } from './query-formatter';
-import { ResourceFactory } from './resource';
+import { ResourceFactory } from './resource-factory';
 import * as SQ from 'sequelize';
 export declare const DataTypes: SQ.DataTypes;
 export interface Options extends SQ.Options {
@@ -61,6 +61,6 @@ export declare class Sequelize implements Configurable<SequelizeOptions> {
         values: any[];
     }, options?: SQ.QueryOptions): Promise<any>;
     formatter(name: string): QueryFormatter;
-    sync(options?: SQ.SyncOptions): Promise<any>;
+    sync(options?: SQ.SyncOptions): any;
     api<T extends IModel<U>, U>(model: string, fn: (factory: ResourceFactory<T, U>) => void): Promise<void>;
 }

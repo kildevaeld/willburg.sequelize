@@ -1,6 +1,6 @@
 {
   "name": "willburg.sequelize",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -10,25 +10,30 @@
   "license": "ISC",
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-bump": "^2.4.0",
+    "gulp-bump": "^2.5.1",
     "gulp-typescript": "^2.13.6",
     "merge2": "^1.0.2",
     "mocha": "^2.5.3",
     "recursive-readdir": "^2.0.0",
     "requiredir": "^1.0.7",
     "sqlite3": "^3.1.5",
-    "willburg": "github:kildevaeld/willburg#v0.3.1"
+    "typescript": "^2.0.10",
+    "willburg": "github:kildevaeld/willburg"
   },
   "dependencies": {
-    "ajv": "^4.7.7",
+    "@types/ajv": "0.0.5",
+    "@types/sequelize": "^4.0.39",
+    "@types/validator": "^5.7.35",
+    "ajv": "^4.9.0",
     "continuation-local-storage": "^3.1.7",
-    "debug": "^2.2.0",
-    "lodash": "^4.16.4",
-    "sequelize": "^3.23.4",
-    "orange": "github:kildevaeld/orange"
+    "debug": "^2.3.3",
+    "lodash": "^4.17.2",
+    "orange": "github:kildevaeld/orange",
+    "sequelize": "^3.27.0",
+    "willburg": "github:kildevaeld/willburg"
   },
   "peerDependencies": {
-    "willburg": "github:kildevaeld/willburg#v0.3.1"
+    "willburg": "github:kildevaeld/willburg"
   },
   "typings": "lib/index"
 }

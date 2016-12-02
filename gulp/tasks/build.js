@@ -5,7 +5,9 @@ const gulp = require('gulp'),
     merge = require('merge2'),
     bump = require('gulp-bump');
     
-const project = tsc.createProject(process.cwd() + '/tsconfig.json');
+const project = tsc.createProject(process.cwd() + '/tsconfig.json', {
+  typescript: require('typescript')
+});
 
 gulp.task('bump', () => {
   return gulp.src('./package.json')
@@ -50,7 +52,7 @@ gulp.task('addfiles', (done) => {
       return file.replace(process.cwd() +'/', '');
     });
 
-    tsconfig.files.unshift('typings/index.d.ts')
+    //tsconfig.files.unshift('typings/index.d.ts')
 
     fs.writeFile(tsconfigDir, JSON.stringify(tsconfig,null,2), function () {
       console.log('%s files added',tsconfig.files.length);

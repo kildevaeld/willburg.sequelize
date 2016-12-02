@@ -46,11 +46,14 @@ export class QueueItem<T, A> extends EventEmitter {
                     return this.model.findAll(q)
                 })
             } else {
-                result = this.model.findAll(this.q).then(m => m.map(mm => this.formatter.format(mm)));
+                result = this.model.findAll(this.q).then(m => {
+                    if (this.formatter) return m.map(mm => this.formatter.format(mm as any));
+                    return m;
+                });
             }
 
         } else {
-            result = this.model.find(this.q).then(m => this.formatter.format(m));
+            result = this.model.find(this.q).then(m => this.formatter ? this.formatter.format(m as any) : m );
         }
 
         const done = () => {

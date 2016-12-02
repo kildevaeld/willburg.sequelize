@@ -3,7 +3,7 @@ import * as SQ from 'sequelize';
 import {AbstractCreator, IModel} from '../../../lib'
 
 
-export class BlogCreator extends AbstractCreator<Blog, BlogAttributes> {
+export class BlogCreator extends AbstractCreator<Blog, BlogAttributes, any> {
     schema = {
         type: "object",
         properties: {

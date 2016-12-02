@@ -3,7 +3,7 @@ import { decorators, Willburg, ITask, Configurable } from 'willburg'
 import { IModel, IModelList } from './interfaces';
 import { QueryFormatter } from './query-formatter'
 import * as Debug from 'debug';
-import { ResourceFactory } from './resource'
+import { ResourceFactory } from './resource-factory'
 import * as SQ from 'sequelize';
 
 const debug = Debug('willburg:sequelize')
@@ -89,7 +89,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
     }
 
     transaction<T>(fn: (t: SQ.Transaction) => Promise<T>): Promise<T> {
-        return this.seq.transaction(fn);
+        return this.seq.transaction(fn as any) as any;
     }
 
     define<T, V>(name: string | ((Sequelize, DataTypes) => SQ.Model<T, V>), attr?: { [key: string]: string }): SQ.Model<T, V> {
@@ -105,7 +105,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
     }
 
     query<T, V>(sql: string | { query: string, values: any[] }, options?: SQ.QueryOptions): Promise<any> {
-        return this.seq.query(sql, options);
+        return this.seq.query(sql, options) as any;
         
     }
 
@@ -114,7 +114,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
     }
 
     sync (options?: SQ.SyncOptions) {
-        return this.seq.sync(options)
+        return this.seq.sync(options) as any;
     }
 
     async api<T extends IModel<U>, U>(model: string, fn: (factory: ResourceFactory<T, U>) => void) {
@@ -122,7 +122,7 @@ export class Sequelize implements Configurable<SequelizeOptions> {
         
         if (typeof fn === 'function') await fn(factory);
         this.factories.push(factory);
-        factory.create(this.app.router, this);
+        factory.create(this.app, this);
     }
 
 }

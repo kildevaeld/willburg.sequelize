@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { Model } from 'sequelize';
 import { Deferred } from 'orange';
 import { EventEmitter } from 'events';

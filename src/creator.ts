@@ -27,7 +27,7 @@ export abstract class AbstractCreator<T extends IModel<U>, U, S> implements ICre
 
             if (wrap) {
                 return this.db.transaction((t) => {
-                    return this.doUpdate(model, data, state, t);
+                    return this.doUpdate(model, data, state, t as any);
                 });
             }
             return this.doUpdate(model, data, state, null);
@@ -65,7 +65,7 @@ export abstract class AbstractCreator<T extends IModel<U>, U, S> implements ICre
     }
 
     remove(model: T): Promise<void> {
-        return model.destroy();
+        return model.destroy() as any;
     }
 
     protected abstract doUpdate(model: T, data: any, state?: S, t?: Transaction): Promise<T>;

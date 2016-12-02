@@ -25,8 +25,8 @@ export declare class QueryFormatter {
     static filters: {
         [key: string]: (model: any, args: any[]) => any;
     };
-    idAttribute: string;
-    description: FormatDescription;
+    readonly idAttribute: string;
+    readonly description: FormatDescription;
     constructor(db: Sequelize, _desc: FormatDescription);
     format<T>(model: IModel<T>): any;
     _formatDescription<T>(model: IModel<T>, desc: FormatDescription): T;
