@@ -32,73 +32,6 @@ export interface ResourceRouteFactoryOptions {
 }
 
 
-function check_id(ctx: Context, next: () => Promise<any>) {
-
-
-    return next();
-}
-
-function resourceRouteFactory<T extends IModel<U>, U>(factory: ResourceFactory<T, U>, db: Sequelize, options: ResourceRouteFactoryOptions) {
-
-
-    let controller = options.controller;
-
-    let m = db.model(options.model);
-    controller.model = m;
-
-    if (options.formatter) {
-        controller.formatter = db.formatter(<string>options.formatter);
-    }
-
-
-    let formatter: any = factory.desc.formatter
-    if (typeof formatter === 'function') {
-        //formatter = (formatter as (ctx: Context) => QueryFormatter)(ctx);
-    } else if (typeof formatter === 'string') {
-        formatter = db.formatter(formatter);
-    }
-
-    let creator = factory.desc.creator;
-    if (creator) {
-        controller.creator = db.app.container.get(creator);
-    }
-
-
-    if (formatter) controller.formatter = formatter;
-
-
-    return function (ctx: Context, next?: () => Promise<any>): Promise<any> {
-
-        if (ctx.params['id']) {
-            if (!/[0-9]+/.test(ctx.params['id'])) {
-                delete ctx.params['id']
-                return next()
-            }
-        }
-
-        if (controller instanceof Resource || controller instanceof Controller) {
-
-            /*if (options.middlewares && options.middlewares.length) {
-                return compose(options.middlewares.concat([controller[options.action].bind(controller)]))(ctx, next)
-            }*/
-
-            return controller.handleRequest(options.action, ctx, next);
-
-        } else {
-            /*if (factory.desc.middleware) {
-                return compose(factory.desc.middleware)(ctx, next).then(() => {
-                    return controller[options.action].call(controller, ctx, next);
-                });
-            } else {
-                return controller[options.action].call(controller, ctx, next);
-            }*/
-            return controller[options.action].call(controller, ctx, next);
-        }
-
-    };
-}
-
-
 export class ResourceFactory<T extends IModel<U>, U> {
     desc: ResourceDescription<T, U> = {
         middleware: [],
@@ -156,7 +89,7 @@ export class ResourceFactory<T extends IModel<U>, U> {
 
         let controller;
         if (this.desc.controller) {
-            controller = app.container.get(Willburg);
+            controller = app.container.get(this.desc.controller);
         } else {
             controller = new Resource<T, U>(db)
         }
@@ -190,7 +123,7 @@ export class ResourceFactory<T extends IModel<U>, U> {
         if (formatter) controller.formatter = formatter;
 
         o.controller = controller;
-       
+
         return o;
     }
 
@@ -202,7 +135,16 @@ export class ResourceFactory<T extends IModel<U>, U> {
 
         let $route = (action: string, controller: any, middlewares: MiddlewareFunc[] = []): MiddlewareFunc => {
             var fn: MiddlewareFunc;
-            return function (ctx: Context, next: () => Promise<any>) {
+            return function(ctx: Context, next: () => Promise<any>) {
+
+
+                if (ctx.params['id']) {
+                    if (!/[0-9]+/.test(ctx.params['id'])) {
+                        delete ctx.params['id']
+                        return next()
+                    }
+                }
+
                 if (!fn) {
                     if (controller instanceof Resource || controller instanceof Controller) {
                         fn = (ctx, next) => controller.handleRequest(action, ctx, next);
@@ -217,12 +159,11 @@ export class ResourceFactory<T extends IModel<U>, U> {
         }
 
 
-        //app.router.get(path, resourceRouteFactory(this, db, Object.assign({}, o)));
-        //app.router.get(path + "/:id", resourceRouteFactory(this, db, Object.assign({}, o, { action: 'show' })))
+        
         let router = app.router;
 
-        router.get(path, check_id ,$route('index', o.controller));
-        router.get(path + "/:id", check_id, $route('show', o.controller))
+        router.get(path, $route('index', o.controller));
+        router.get(path + "/:id", $route('show', o.controller))
 
 
         let routes = this.desc.routes;
