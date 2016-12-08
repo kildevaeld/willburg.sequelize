@@ -12,10 +12,6 @@ import * as Path from 'path';
 const compose = require('koa-compose');
 
 
-
-
-
-
 const aFieldReg = /^\$[a-zA-Z.]+\$$/;
 
 function hasAssociatedQuery2(where: any): boolean {
@@ -146,7 +142,7 @@ export class Resource<T extends IModel<U>, U> extends Controller {
 
         // https://github.com/sequelize/sequelize/issues/6274
         if (hasAssociatedQuery(q)) {
-
+            console.log('asso')
             delete q.limit
             let attr = q.attributes;
 

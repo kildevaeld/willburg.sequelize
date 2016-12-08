@@ -34,6 +34,7 @@ export class QueueItem<T, A> extends EventEmitter {
         if (this.type === QueryType.All) {
             let q = extend({}, this.q || {});
             if (q.include && (q.offset != null || q.limit != null)) {
+                // shortcomings of sequelize
                 result = this.model.findAll({
                     attributes: ['id'],
                     where: q.where,
@@ -44,6 +45,9 @@ export class QueueItem<T, A> extends EventEmitter {
                     delete q.limit;
                     q.where = { id: ids.map(m => (<any>m).id) };
                     return this.model.findAll(q)
+                }).then(models => {
+                    if (this.formatter) return models.map(m => this.formatter.format(m as any));
+                    return models;
                 })
             } else {
                 result = this.model.findAll(this.q).then(m => {
@@ -53,7 +57,7 @@ export class QueueItem<T, A> extends EventEmitter {
             }
 
         } else {
-            result = this.model.find(this.q).then(m => this.formatter ? this.formatter.format(m as any) : m );
+            result = this.model.find(this.q).then(m => this.formatter ? this.formatter.format(m as any) : m);
         }
 
         const done = () => {
@@ -94,6 +98,8 @@ export class Queue<T, A> {
     private add(key: string, type: QueryType, q: any, formatter: QueryFormatter) {
         let item = new QueueItem<T, A>(key, type, this.model, q, formatter);
         let found = false;
+
+
 
         for (let i of this.queue) {
             if (i.equal(item)) {

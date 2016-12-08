@@ -1,4 +1,3 @@
-/// <reference types="lodash" />
 import { IModel } from './interfaces';
 import { QueryFormatter } from './query-formatter';
 import { ICreatorConstructor } from './creator';
