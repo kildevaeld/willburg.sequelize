@@ -30,10 +30,10 @@
     "lodash": "^4.17.2",
     "orange": "github:kildevaeld/orange",
     "sequelize": "^3.27.0",
-    "willburg": "github:kildevaeld/willburg"
+    "willburg": "github:kildevaeld/willburg#v0.4.4"
   },
   "peerDependencies": {
-    "willburg": "github:kildevaeld/willburg"
+    "willburg": "github:kildevaeld/willburg#v0.4.4"
   },
   "typings": "lib/index"
 }
