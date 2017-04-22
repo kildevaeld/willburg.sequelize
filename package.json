@@ -1,6 +1,6 @@
 {
   "name": "willburg.sequelize",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "requiredir": "^1.0.7",
     "sqlite3": "^3.1.5",
     "typescript": "^2.0.10",
-    "willburg": "github:kildevaeld/willburg"
+    "willburg": "github:kildevaeld/willburg#v0.4.5"
   },
   "dependencies": {
     "@types/ajv": "0.0.5",
@@ -30,10 +30,11 @@
     "lodash": "^4.17.2",
     "orange": "github:kildevaeld/orange",
     "sequelize": "^3.27.0",
-    "willburg": "github:kildevaeld/willburg#v0.4.4"
+    "typescript": "^2.3.0",
+    "willburg": "github:kildevaeld/willburg#v0.4.5"
   },
   "peerDependencies": {
-    "willburg": "github:kildevaeld/willburg#v0.4.4"
+    "willburg": "github:kildevaeld/willburg#v0.4.5"
   },
   "typings": "lib/index"
 }

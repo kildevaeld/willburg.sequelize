@@ -23,8 +23,7 @@ options.extend({
 app.startAndListen(8080)
 .then(() => {
     let sq: Sequelize = app.container.get(Sequelize)
-
-    return sq.sync().then( () => sq)
+    return sq.sync().then( () => sq )
 })
 
 .catch( e => {
